@@ -7,6 +7,7 @@ import Webcam from 'react-webcam';
 
 import '@tensorflow/tfjs-backend-webgl';
 import * as poseDetection from '@tensorflow-models/pose-detection';
+import { getCoordsDataType } from '@tensorflow/tfjs-backend-webgl/dist/shader_compiler';
 
 // Create a detector.
 
@@ -23,7 +24,7 @@ function App() {
     try {
       setInterval(() => {
         detect(detector)
-      }, 10)
+      }, 1)
     } catch (error) {
       console.log('nothing')
     }
@@ -53,12 +54,22 @@ function App() {
       const ctx = canvasRef.current.getContext('2d');
 
 
-      //left elbow
-      const x = hand[0].keypoints[13].x;
-      const y = hand[0].keypoints[13].y
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
-      ctx.fillStyle = "red";
-      ctx.fill();
+      var coords = [
+        [hand[0].keypoints[11].x, hand[0].keypoints[11].y],
+        [hand[0].keypoints[12].x, hand[0].keypoints[12].y],
+        [hand[0].keypoints[13].x, hand[0].keypoints[13].y],
+        [hand[0].keypoints[14].x, hand[0].keypoints[14].y],
+        [hand[0].keypoints[15].x, hand[0].keypoints[15].y],
+        [hand[0].keypoints[16].x, hand[0].keypoints[16].y],
+      ]
+
+      for (var i = 0; i < coords.length; i++) {
+        ctx.beginPath();
+        ctx.arc(coords[i][0], coords[i][1], 10, 0, Math.PI * 2, true);
+        ctx.fillStyle = "blue"
+        ctx.fill();
+      }
+
     }
   }
 
