@@ -19,7 +19,7 @@ function App() {
 
   const runHandpose = async () => {
     console.log('loading model');
-    const detector = await poseDetection.createDetector(poseDetection.SupportedModels.BlazePose, { runtime: 'tfjs', modelType: 'lite' });
+    const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
     console.log('Handpose model loaded.');
     try {
       setInterval(() => {
@@ -55,12 +55,12 @@ function App() {
 
 
       var coords = [
-        [hand[0].keypoints[11].x, hand[0].keypoints[11].y],
-        [hand[0].keypoints[12].x, hand[0].keypoints[12].y],
-        [hand[0].keypoints[13].x, hand[0].keypoints[13].y],
-        [hand[0].keypoints[14].x, hand[0].keypoints[14].y],
-        [hand[0].keypoints[15].x, hand[0].keypoints[15].y],
-        [hand[0].keypoints[16].x, hand[0].keypoints[16].y],
+        [hand[0].keypoints[5].x, hand[0].keypoints[5].y],
+        [hand[0].keypoints[6].x, hand[0].keypoints[6].y],
+        [hand[0].keypoints[7].x, hand[0].keypoints[7].y],
+        [hand[0].keypoints[8].x, hand[0].keypoints[8].y],
+        [hand[0].keypoints[9].x, hand[0].keypoints[9].y],
+        [hand[0].keypoints[10].x, hand[0].keypoints[10].y],
       ]
 
       for (var i = 0; i < coords.length; i++) {
