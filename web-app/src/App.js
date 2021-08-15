@@ -17,6 +17,20 @@ function App() {
 
   const [p, setp] = useState([]);
 
+
+  const slope = (x1, y1, x2, y2) => {
+    return (y2 - y1) / (x2 - x1);
+  }
+  const roundoff = (x1, y1, x2, y2) => {
+    const s = slope(x1, y1, x2, y2);
+    const d = 1
+    const x = Math.pow(d * ((Math.pow(d, 2)) / (1 + Math.pow(s, 2))), 0.5)
+    const y = s * x
+    //return -round(x, 3), -round(y, 3)
+    return [-x.toFixed(3), -y.toFixed(3)]
+  }
+
+
   const runHandpose = async () => {
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
     console.log('Handpose model loaded.');
@@ -24,7 +38,7 @@ function App() {
     console.log('classification model loaded')
     try {
       setInterval(() => {
-        detect(detector)
+        detect(detector, model)
       }, 1)
     } catch (error) {
       console.log('nothing')
@@ -33,8 +47,7 @@ function App() {
 
   runHandpose();
 
-
-  const detect = async (model) => {
+  const detect = async (m_model, c_model) => {
     if (
       typeof webcamRef.current !== 'undefined' &&
       webcamRef.current !== null &&
@@ -50,18 +63,18 @@ function App() {
       canvasRef.current.width = videoWidth;
       canvasRef.current.height = videoHeight;
 
-      const hand = await model.estimatePoses(video);
+      const hand = await m_model.estimatePoses(video);
 
       const ctx = canvasRef.current.getContext('2d');
 
 
       var coords = [
         [hand[0].keypoints[5].x, hand[0].keypoints[5].y],
-        [hand[0].keypoints[6].x, hand[0].keypoints[6].y],
+        //[hand[0].keypoints[6].x, hand[0].keypoints[6].y],
         [hand[0].keypoints[7].x, hand[0].keypoints[7].y],
-        [hand[0].keypoints[8].x, hand[0].keypoints[8].y],
-        [hand[0].keypoints[9].x, hand[0].keypoints[9].y],
-        [hand[0].keypoints[10].x, hand[0].keypoints[10].y],
+        //[hand[0].keypoints[8].x, hand[0].keypoints[8].y],
+        //[hand[0].keypoints[9].x, hand[0].keypoints[9].y],
+        //[hand[0].keypoints[10].x, hand[0].keypoints[10].y],
       ]
 
       for (var i = 0; i < coords.length; i++) {
@@ -71,8 +84,15 @@ function App() {
         ctx.fill();
       }
 
+      const x = roundoff(hand[0].keypoints[5].x, hand[0].keypoints[5].y, hand[0].keypoints[7].x, hand[0].keypoints[7].y)
+      let input_xs = tf.tensor2d([[x[0], x[1]]]);
+      let output = c_model.predict(input_xs);
+      const outputData = output.dataSync();
+      console.log(outputData)
+
     }
   }
+
 
 
 
