@@ -18,9 +18,10 @@ function App() {
   const [p, setp] = useState([]);
 
   const runHandpose = async () => {
-    console.log('loading model');
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
     console.log('Handpose model loaded.');
+    const model = await tf.loadLayersModel('https://raw.githubusercontent.com/sufiyanpatel27/exercise_tracker/models/d_pull_ups/classifier/model.json')
+    console.log('classification model loaded')
     try {
       setInterval(() => {
         detect(detector)
