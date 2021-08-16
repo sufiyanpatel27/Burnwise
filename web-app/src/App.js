@@ -15,8 +15,6 @@ function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [p, setp] = useState([]);
-
 
   const slope = (x1, y1, x2, y2) => {
     return (y2 - y1) / (x2 - x1);
@@ -82,11 +80,11 @@ function App() {
 
       var coords = [
         [hand[0].keypoints[5].x, hand[0].keypoints[5].y],
-        //[hand[0].keypoints[6].x, hand[0].keypoints[6].y],
+        [hand[0].keypoints[6].x, hand[0].keypoints[6].y],
         [hand[0].keypoints[7].x, hand[0].keypoints[7].y],
-        //[hand[0].keypoints[8].x, hand[0].keypoints[8].y],
+        [hand[0].keypoints[8].x, hand[0].keypoints[8].y],
         [hand[0].keypoints[9].x, hand[0].keypoints[9].y],
-        //[hand[0].keypoints[10].x, hand[0].keypoints[10].y],
+        [hand[0].keypoints[10].x, hand[0].keypoints[10].y],
       ]
 
       for (var i = 0; i < coords.length; i++) {
@@ -96,33 +94,57 @@ function App() {
         ctx.fill();
       }
 
+      //left hand
       const x = roundoff(hand[0].keypoints[5].x, hand[0].keypoints[5].y, hand[0].keypoints[7].x, hand[0].keypoints[7].y)
       let input_xs = tf.tensor2d([[x[0], x[1]]]);
       let output = c_model.predict(input_xs);
       const outputData = output.dataSync();
-      //console.log(outputData[0])
+      //right hand
+      const right_x = roundoff(hand[0].keypoints[6].x, hand[0].keypoints[6].y, hand[0].keypoints[8].x, hand[0].keypoints[8].y)
+      let right_input_xs = tf.tensor2d([[right_x[0], right_x[1]]]);
+      let right_output = c_model.predict(right_input_xs);
+      const right_outputData = right_output.dataSync();
 
 
-      // wrist prediction
+      //left wrist prediction
       const ans = r_model.predict(input_xs)
       const outputData_1 = ans.dataSync();
-      //console.log(outputData_1[0], outputData_1[1]);
       const x_reg = retrivew(x[0], x[1], outputData_1[0], outputData_1[1], hand[0].keypoints[7].x, hand[0].keypoints[7].y, hand[0].keypoints[9].x, hand[0].keypoints[9].y)
-      //console.log(x_reg[0], x_reg[1])
+
+      //right wrist prediction
+      const right_ans = r_model.predict(right_input_xs)
+      const right_outputData_1 = right_ans.dataSync();
+      const right_x_reg = retrivew(right_x[0], right_x[1], right_outputData_1[0], right_outputData_1[1], hand[0].keypoints[8].x, hand[0].keypoints[8].y, hand[0].keypoints[10].x, hand[0].keypoints[9].y)
+
 
       if (outputData[0] == 1) {
         if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) > 50) {
-          console.log('left')
+          document.getElementById('left').innerHTML = "left"
         }
         else if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) < -50) {
-          console.log('right')
+          document.getElementById('left').innerHTML = "right"
         }
         else {
-          console.log('good')
+          document.getElementById('left').innerHTML = "good"
         }
       }
       else {
-        console.log('elbow error')
+        document.getElementById('left').innerHTML = "elbow error"
+      }
+
+      if (right_outputData[0] == 1) {
+        if ((right_x_reg[0] - hand[0].keypoints[10].x).toFixed(2) > 50) {
+          document.getElementById('right').innerHTML = "left"
+        }
+        else if ((right_x_reg[0] - hand[0].keypoints[10].x).toFixed(2) < -50) {
+          document.getElementById('right').innerHTML = "right"
+        }
+        else {
+          document.getElementById('right').innerHTML = "good"
+        }
+      }
+      else {
+        document.getElementById('right').innerHTML = "elbow error"
       }
     }
   }
@@ -161,7 +183,8 @@ function App() {
             height: 700,
           }} />
       </header>
-      <h1 style={{ color: 'black' }}>{p}fsdfsd</h1>
+      <h1 id="left" style={{ color: 'black' }}>left</h1>
+      <h1 id="right" style={{ color: 'black' }}>right</h1>
     </div>
   );
 }
