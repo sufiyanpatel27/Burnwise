@@ -100,7 +100,7 @@ function App() {
       let input_xs = tf.tensor2d([[x[0], x[1]]]);
       let output = c_model.predict(input_xs);
       const outputData = output.dataSync();
-      //console.log(outputData)
+      //console.log(outputData[0])
 
 
       // wrist prediction
@@ -109,14 +109,20 @@ function App() {
       //console.log(outputData_1[0], outputData_1[1]);
       const x_reg = retrivew(x[0], x[1], outputData_1[0], outputData_1[1], hand[0].keypoints[7].x, hand[0].keypoints[7].y, hand[0].keypoints[9].x, hand[0].keypoints[9].y)
       //console.log(x_reg[0], x_reg[1])
-      if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) > 0.1) {
-        console.log('right')
-      }
-      else if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) < 0) {
-        console.log('left')
+
+      if (outputData[0] == 1) {
+        if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) > 50) {
+          console.log('left')
+        }
+        else if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) < -50) {
+          console.log('right')
+        }
+        else {
+          console.log('good')
+        }
       }
       else {
-        console.log('good')
+        console.log('elbow error')
       }
     }
   }
