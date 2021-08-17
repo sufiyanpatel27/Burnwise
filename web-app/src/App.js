@@ -41,7 +41,7 @@ function App() {
 
   const runHandpose = async () => {
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
-    console.log('Handpose model loaded.');
+    console.log('Movenet model loaded.');
     const model = await tf.loadLayersModel('https://raw.githubusercontent.com/sufiyanpatel27/exercise_tracker/models/d_pull_ups/classifier/model.json')
     console.log('classification model loaded')
     const model2 = await tf.loadLayersModel('https://raw.githubusercontent.com/sufiyanpatel27/exercise_tracker/models/d_pull_ups/regressor/model.json')
@@ -183,8 +183,16 @@ function App() {
             height: 700,
           }} />
       </header>
-      <h1 id="left" style={{ color: 'black' }}>left</h1>
-      <h1 id="right" style={{ color: 'black' }}>right</h1>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <h1 style={{ color: 'black' }}>left hand : </h1>
+          <h1 id="left" style={{ color: 'black' }}>left</h1>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <h1 style={{ color: 'black' }}>right hand : </h1>
+          <h1 id="right" style={{ color: 'black' }}>right</h1>
+        </div>
+      </div>
     </div>
   );
 }
