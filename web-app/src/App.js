@@ -1,21 +1,16 @@
-import logo from './logo.svg';
 import './App.css';
 import React, { useRef, useState } from 'react';
 import * as tf from '@tensorflow/tfjs';
 import Webcam from 'react-webcam';
-
-
 import '@tensorflow/tfjs-backend-webgl';
 import * as poseDetection from '@tensorflow-models/pose-detection';
-import { getCoordsDataType } from '@tensorflow/tfjs-backend-webgl/dist/shader_compiler';
 
-// Create a detector.
 
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
-
+  //basic functions
   const slope = (x1, y1, x2, y2) => {
     return (y2 - y1) / (x2 - x1);
   }
@@ -37,7 +32,6 @@ function App() {
     const y = s * (x - x3) + y3
     return [x, y]
   }
-
 
   const runHandpose = async () => {
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
@@ -87,10 +81,28 @@ function App() {
         [hand[0].keypoints[10].x, hand[0].keypoints[10].y],
       ]
 
+      ctx.moveTo(coords[0][0], coords[0][1]);
+      ctx.lineTo(coords[1][0], coords[1][1]);
+
+      ctx.moveTo(coords[0][0], coords[0][1]);
+      ctx.lineTo(coords[2][0], coords[2][1]);
+
+      ctx.moveTo(coords[1][0], coords[1][1]);
+      ctx.lineTo(coords[3][0], coords[3][1]);
+
+      ctx.moveTo(coords[2][0], coords[2][1]);
+      ctx.lineTo(coords[4][0], coords[4][1]);
+
+      ctx.moveTo(coords[3][0], coords[3][1]);
+      ctx.lineTo(coords[5][0], coords[5][1]);
+
+      ctx.stroke();
+
+
       for (var i = 0; i < coords.length; i++) {
         ctx.beginPath();
-        ctx.arc(coords[i][0], coords[i][1], 10, 0, Math.PI * 2, true);
-        ctx.fillStyle = "blue"
+        ctx.arc(coords[i][0], coords[i][1], 5, 0, Math.PI * 2, true);
+        ctx.fillStyle = "#00FF33"
         ctx.fill();
       }
 
@@ -119,32 +131,64 @@ function App() {
 
       if (outputData[0] == 1) {
         if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) > 50) {
-          document.getElementById('left').innerHTML = "left"
+          document.getElementById('left_arm_sugg').innerHTML = "left"
+          document.getElementById('left_arm_sugg').style.color = 'red'
+          ctx.beginPath();
+          ctx.arc(coords[4][0], coords[4][1], 10, 0, Math.PI * 2, true);
+          ctx.fillStyle = "red"
+          ctx.fill();
         }
         else if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) < -50) {
-          document.getElementById('left').innerHTML = "right"
+          document.getElementById('left_arm_sugg').innerHTML = "right"
+          document.getElementById('left_arm_sugg').style.color = 'red'
+          ctx.beginPath();
+          ctx.arc(coords[4][0], coords[4][1], 10, 0, Math.PI * 2, true);
+          ctx.fillStyle = "red"
+          ctx.fill();
         }
         else {
-          document.getElementById('left').innerHTML = "good"
+          document.getElementById('left_arm_sugg').innerHTML = "good"
+          document.getElementById('left_arm_sugg').style.color = '#00FF33'
         }
       }
       else {
-        document.getElementById('left').innerHTML = "elbow error"
+        document.getElementById('left_arm_sugg').innerHTML = "elbow error"
+        document.getElementById('left_arm_sugg').style.color = 'red'
+        ctx.beginPath();
+        ctx.arc(coords[2][0], coords[2][1], 10, 0, Math.PI * 2, true);
+        ctx.fillStyle = "red"
+        ctx.fill();
       }
 
       if (right_outputData[0] == 1) {
         if ((right_x_reg[0] - hand[0].keypoints[10].x).toFixed(2) > 50) {
-          document.getElementById('right').innerHTML = "left"
+          document.getElementById('right_arm_sugg').innerHTML = "left"
+          document.getElementById('right_arm_sugg').style.color = 'red'
+          ctx.beginPath();
+          ctx.arc(coords[5][0], coords[5][1], 10, 0, Math.PI * 2, true);
+          ctx.fillStyle = "red"
+          ctx.fill();
         }
         else if ((right_x_reg[0] - hand[0].keypoints[10].x).toFixed(2) < -50) {
-          document.getElementById('right').innerHTML = "right"
+          document.getElementById('right_arm_sugg').innerHTML = "right"
+          document.getElementById('right_arm_sugg').style.color = 'red'
+          ctx.beginPath();
+          ctx.arc(coords[5][0], coords[5][1], 10, 0, Math.PI * 2, true);
+          ctx.fillStyle = "red"
+          ctx.fill();
         }
         else {
-          document.getElementById('right').innerHTML = "good"
+          document.getElementById('right_arm_sugg').innerHTML = "good"
+          document.getElementById('right_arm_sugg').style.color = '#00FF33'
         }
       }
       else {
-        document.getElementById('right').innerHTML = "elbow error"
+        document.getElementById('right_arm_sugg').innerHTML = "elbow error"
+        document.getElementById('right_arm_sugg').style.color = 'red'
+        ctx.beginPath();
+        ctx.arc(coords[3][0], coords[3][1], 10, 0, Math.PI * 2, true);
+        ctx.fillStyle = "red"
+        ctx.fill();
       }
     }
   }
@@ -155,42 +199,68 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
+      <div className="left-panel">
         <Webcam
           ref={webcamRef}
           style={{
             position: 'absolute',
-            marginLeft: 'auto',
-            marginRight: 'auto',
             left: 0,
             right: 0,
             textAlign: 'center',
             zindex: 9,
-            width: 933.33,
-            height: 700
+            width: 1050,
+            height: 786
           }} />
         <canvas
           ref={canvasRef}
           style={{
             position: 'absolute',
-            marginLeft: 'auto',
-            marginRight: 'auto',
             left: 0,
             right: 0,
             textAlign: 'center',
             zindex: 9,
-            width: 933.33,
-            height: 700,
+            width: 1050,
+            height: 786,
           }} />
-      </header>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <h1 style={{ color: 'black' }}>left hand : </h1>
-          <h1 id="left" style={{ color: 'black' }}>left</h1>
+      </div>
+      <div className="right-panel">
+        <div className="exercise_name">
+          <h1 style={{ color: "#00FF33" }}>Pull - ups</h1>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <h1 style={{ color: 'black' }}>right hand : </h1>
-          <h1 id="right" style={{ color: 'black' }}>right</h1>
+        <div className="active_data_points">
+          <div className="head">
+            <h2 style={{ color: "white" }}>Active Data Points</h2>
+          </div>
+          <div className="points" style={{ color: "#00FF33" }}>
+            <div className="left_points">
+              <h6>left wrist</h6>
+              <h6>left elbow</h6>
+              <h6>left shoulder</h6>
+            </div>
+            <div className="right_points">
+              <h6>right wrist</h6>
+              <h6>right elbow</h6>
+              <h6>right shoulder</h6>
+            </div>
+          </div>
+        </div>
+        <div className="counter">
+          <div className="counter_head">
+            <h2 style={{ color: "white" }}>Counter</h2>
+          </div>
+          <div className="counter_count">
+            <h3 style={{ color: "#00FF33" }}>12</h3>
+          </div>
+        </div>
+        <div className="suggesstions">
+          <div className="left_arm">
+            <h6>Left Arm : </h6>
+            <h2 style={{ color: "#00FF33" }} id="left_arm_sugg">perfect</h2>
+          </div>
+          <div className="left_arm">
+            <h6>Right Arm : </h6>
+            <h2 style={{ color: "#00FF33" }} id="right_arm_sugg">perfect</h2>
+          </div>
         </div>
       </div>
     </div>
