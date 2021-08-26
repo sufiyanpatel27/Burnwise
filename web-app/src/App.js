@@ -10,6 +10,17 @@ function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
+  const [loadmodel, setloadmodel] = useState("loading model");
+  var pos;
+  var stage;
+  var counter = 0;
+
+  var r_pos;
+  var r_stage;
+  var r_counter = 0;
+
+  var final_counter = 0;
+
   //basic functions
   const slope = (x1, y1, x2, y2) => {
     return (y2 - y1) / (x2 - x1);
@@ -32,6 +43,16 @@ function App() {
     const y = s * (x - x3) + y3
     return [x, y]
   }
+  const angle = (x1, y1, x2, y2, x3, y3) => {
+    var dAx = x2 - x1;
+    var dAy = y2 - y1;
+    var dBx = x3 - x2;
+    var dBy = y3 - y2;
+    var ans = Math.atan2(dAx * dBy - dAy * dBx, dAx * dBx + dAy * dBy);
+    if (ans < 0) { ans = ans * -1; }
+    var final_ans = ans * (180 / Math.PI);
+    return final_ans;
+  }
 
   const runHandpose = async () => {
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
@@ -40,6 +61,7 @@ function App() {
     console.log('classification model loaded')
     const model2 = await tf.loadLayersModel('https://raw.githubusercontent.com/sufiyanpatel27/exercise_tracker/models/d_pull_ups/regressor/model.json')
     console.log('regression model loaded')
+    setloadmodel("")
     try {
       setInterval(() => {
         detect(detector, model, model2)
@@ -131,7 +153,7 @@ function App() {
 
       if (outputData[0] == 1) {
         if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) > 50) {
-          document.getElementById('left_arm_sugg').innerHTML = "left"
+          document.getElementById('left_arm_sugg').innerHTML = "move left"
           document.getElementById('left_arm_sugg').style.color = 'red'
           ctx.beginPath();
           ctx.arc(coords[4][0], coords[4][1], 10, 0, Math.PI * 2, true);
@@ -139,7 +161,7 @@ function App() {
           ctx.fill();
         }
         else if ((x_reg[0] - hand[0].keypoints[9].x).toFixed(2) < -50) {
-          document.getElementById('left_arm_sugg').innerHTML = "right"
+          document.getElementById('left_arm_sugg').innerHTML = "move right"
           document.getElementById('left_arm_sugg').style.color = 'red'
           ctx.beginPath();
           ctx.arc(coords[4][0], coords[4][1], 10, 0, Math.PI * 2, true);
@@ -149,6 +171,31 @@ function App() {
         else {
           document.getElementById('left_arm_sugg').innerHTML = "good"
           document.getElementById('left_arm_sugg').style.color = '#00FF33'
+          const ans = angle(coords[0][0], coords[0][1], coords[2][0], coords[2][1], coords[4][0], coords[4][1]);
+          if (ans > 90) {
+            const x = roundoff(hand[0].keypoints[5].x, hand[0].keypoints[5].y, hand[0].keypoints[7].x, hand[0].keypoints[7].y + 20)
+            let input_xs = tf.tensor2d([[x[0], x[1]]]);
+            let output = c_model.predict(input_xs);
+            const outputData = output.dataSync();
+            //console.log(outputData)
+            pos = "down"
+          }
+          else {
+            const x = roundoff(hand[0].keypoints[5].x, hand[0].keypoints[5].y, hand[0].keypoints[7].x, hand[0].keypoints[7].y - 20)
+            let input_xs = tf.tensor2d([[x[0], x[1]]]);
+            let output = c_model.predict(input_xs);
+            const outputData = output.dataSync();
+            //console.log(outputData)
+            pos = "up"
+          }
+          if (pos == "down") {
+            stage = "down"
+          }
+          if (pos == "up" && stage == "down") {
+            stage = "up"
+            counter += 1
+            //document.getElementById('final_counter').innerHTML = counter;
+          }
         }
       }
       else {
@@ -162,7 +209,7 @@ function App() {
 
       if (right_outputData[0] == 1) {
         if ((right_x_reg[0] - hand[0].keypoints[10].x).toFixed(2) > 50) {
-          document.getElementById('right_arm_sugg').innerHTML = "left"
+          document.getElementById('right_arm_sugg').innerHTML = "move left"
           document.getElementById('right_arm_sugg').style.color = 'red'
           ctx.beginPath();
           ctx.arc(coords[5][0], coords[5][1], 10, 0, Math.PI * 2, true);
@@ -170,7 +217,7 @@ function App() {
           ctx.fill();
         }
         else if ((right_x_reg[0] - hand[0].keypoints[10].x).toFixed(2) < -50) {
-          document.getElementById('right_arm_sugg').innerHTML = "right"
+          document.getElementById('right_arm_sugg').innerHTML = "move right"
           document.getElementById('right_arm_sugg').style.color = 'red'
           ctx.beginPath();
           ctx.arc(coords[5][0], coords[5][1], 10, 0, Math.PI * 2, true);
@@ -180,6 +227,38 @@ function App() {
         else {
           document.getElementById('right_arm_sugg').innerHTML = "good"
           document.getElementById('right_arm_sugg').style.color = '#00FF33'
+          const ans = angle(coords[1][0], coords[1][1], coords[3][0], coords[3][1], coords[5][0], coords[5][1]);
+          if (ans > 90) {
+            const x = roundoff(hand[0].keypoints[6].x, hand[0].keypoints[6].y, hand[0].keypoints[8].x, hand[0].keypoints[8].y + 20)
+            let input_xs = tf.tensor2d([[x[0], x[1]]]);
+            let output = c_model.predict(input_xs);
+            const outputData = output.dataSync();
+            //console.log(outputData)
+            r_pos = "down"
+          }
+          else {
+            const x = roundoff(hand[0].keypoints[6].x, hand[0].keypoints[6].y, hand[0].keypoints[8].x, hand[0].keypoints[8].y - 20)
+            let input_xs = tf.tensor2d([[x[0], x[1]]]);
+            let output = c_model.predict(input_xs);
+            const outputData = output.dataSync();
+            //console.log(outputData)
+            r_pos = "up"
+          }
+          if (r_pos == "down") {
+            r_stage = "down"
+          }
+          if (r_pos == "up" && r_stage == "down") {
+            r_stage = "up"
+            r_counter += 1
+            //document.getElementById('final_counter').innerHTML = counter;
+            if (counter == r_counter) {
+              final_counter += 1;
+              document.getElementById('final_counter').innerHTML = final_counter;
+            }
+            /*else {
+              alert("here")
+            }*/
+          }
         }
       }
       else {
@@ -192,6 +271,9 @@ function App() {
       }
     }
   }
+
+
+
 
 
 
@@ -249,7 +331,7 @@ function App() {
             <h2 style={{ color: "white" }}>Counter</h2>
           </div>
           <div className="counter_count">
-            <h3 style={{ color: "#00FF33" }}>12</h3>
+            <h3 id="final_counter" style={{ color: "#00FF33" }}>12</h3>
           </div>
         </div>
         <div className="suggesstions">
