@@ -10,7 +10,7 @@ function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [loadmodel, setloadmodel] = useState("loading model");
+
   var pos;
   var stage;
   var counter = 0;
@@ -61,7 +61,6 @@ function App() {
     console.log('classification model loaded')
     const model2 = await tf.loadLayersModel('https://raw.githubusercontent.com/sufiyanpatel27/exercise_tracker/models/d_pull_ups/regressor/model.json')
     console.log('regression model loaded')
-    setloadmodel("")
     try {
       setInterval(() => {
         detect(detector, model, model2)
@@ -331,17 +330,17 @@ function App() {
             <h2 style={{ color: "white" }}>Counter</h2>
           </div>
           <div className="counter_count">
-            <h3 id="final_counter" style={{ color: "#00FF33" }}>12</h3>
+            <h3 id="final_counter" style={{ color: "#00FF33" }}>loading models</h3>
           </div>
         </div>
         <div className="suggesstions">
           <div className="left_arm">
             <h6>Left Arm : </h6>
-            <h2 style={{ color: "#00FF33" }} id="left_arm_sugg">perfect</h2>
+            <h2 style={{ color: "#00FF33" }} id="left_arm_sugg">loading models</h2>
           </div>
           <div className="left_arm">
             <h6>Right Arm : </h6>
-            <h2 style={{ color: "#00FF33" }} id="right_arm_sugg">perfect</h2>
+            <h2 style={{ color: "#00FF33" }} id="right_arm_sugg">loading models</h2>
           </div>
         </div>
       </div>
