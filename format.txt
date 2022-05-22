@@ -1,14 +1,11 @@
-1.0 intro
-2.0 ML and CV in fitness/something
-2.1 possibilities 
-2.2
-2.3
-3.0 data
-4.0 technology
-4.1 ML
-4.2 DL
-4.3 CV
-5.0 results
+1.0 intro                                   done
+2.0 ML and CV in fitness                    done
+3.0 data                                    done
+4.0 technology                              done
+4.1 ML                                      done
+4.2 DL                                      done
+4.3 CV                                      done
+5.0 results                                 done
 6.0 proposed uses
 7.0 conslusion
 
